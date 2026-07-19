@@ -1,0 +1,15 @@
+project_name = "interview-demo"
+state_bucket = "replace-with-your-state-bucket"
+aws_region = "us-east-1"
+vpc_cidr = "10.0.0.0/16"
+
+# Replace with values from your own AWS account.
+key_name = "replace-with-key-pair"
+bastion_ami_id = "ami-replace-me"
+grafana_ami_id = "ami-replace-me"
+internal_tooling_ami_id = "ami-replace-me"
+
+# Restrict these to trusted IP addresses. RFC 5737 address shown as an example.
+bastion_allowed_ips = ["203.0.113.10/32"]
+grafana_alb_allowed_ips = ["203.0.113.10/32"]
+internal_tooling_allowed_ips = ["203.0.113.10/32"]

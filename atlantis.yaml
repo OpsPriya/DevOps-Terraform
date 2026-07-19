@@ -1,0 +1,100 @@
+version: 3
+automerge: false
+delete_source_branch_on_merge: true
+allowed_regexp_prefixes:
+  - "feature/terraform-demo"
+
+terraform_version: v1.13.0
+autoplan:
+  when_modified: ["*.tf", "*.tfvars", "modules/**/*.tf"]
+  enabled: true
+
+projects:
+# Shared environment - must be deployed first
+- name: shared
+  dir: terraform/envs/shared
+  workspace: default
+  autoplan:
+    when_modified: 
+      - "terraform/envs/shared/**/*.tf"
+      - "terraform/envs/shared/**/*.tfvars"
+      - "terraform/modules/**/*.tf"
+    enabled: true
+  apply_requirements: [approved, mergeable]
+  terraform_version: v1.13.0
+  
+# Production environment - depends on shared
+- name: prod
+  dir: terraform/envs/prod
+  workspace: default
+  autoplan:
+    when_modified: 
+      - "terraform/envs/prod/**/*.tf"
+      - "terraform/envs/prod/**/*.tfvars"
+      - "terraform/envs/shared/**/*.tf"
+      - "terraform/modules/**/*.tf"
+    enabled: true
+  apply_requirements: [approved, mergeable]
+  depends_on: [shared]
+  terraform_version: v1.13.0
+  
+# Staging environment - depends on shared
+- name: staging
+  dir: terraform/envs/staging
+  workspace: default
+  autoplan:
+    when_modified: 
+      - "terraform/envs/staging/**/*.tf"
+      - "terraform/envs/staging/**/*.tfvars"
+      - "terraform/envs/shared/**/*.tf"
+      - "terraform/modules/**/*.tf"
+    enabled: true
+  apply_requirements: [approved, mergeable]
+  depends_on: [shared]
+  terraform_version: v1.13.0
+  
+# Development environment - depends on shared
+- name: dev
+  dir: terraform/envs/dev
+  workspace: default
+  autoplan:
+    when_modified: 
+      - "terraform/envs/dev/**/*.tf"
+      - "terraform/envs/dev/**/*.tfvars"
+      - "terraform/envs/shared/**/*.tf"
+      - "terraform/modules/**/*.tf"
+    enabled: true
+  apply_requirements: [approved, mergeable]
+  depends_on: [shared]
+  terraform_version: v1.13.0
+
+workflows:
+  default:
+    plan:
+      steps:
+      - init
+      - plan
+    apply:
+      steps:
+      - apply
+      
+  # Custom workflow for shared environment
+  shared:
+    plan:
+      steps:
+      - init
+      - plan
+    apply:
+      steps:
+      - apply
+      
+  # Custom workflow for production with additional checks
+  production:
+    plan:
+      steps:
+      - init
+      - plan
+    apply:
+      steps:
+      - apply
+
